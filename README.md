@@ -30,5 +30,9 @@ Selenium
 - Install pymongo:
 ```bash
 pip install pymongo
-pip install selenium
+```
+## 🛢️ MongoDB Setup
+```bash
 
+pip install selenium
+```
