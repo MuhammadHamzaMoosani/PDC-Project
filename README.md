@@ -2,6 +2,8 @@
 
 ## Overview
 Building a **Parallel Distributed Crawler (PDC)** to scrape **live flight ticket prices** across different city pairs.
+Currently we will try to build a database for the tickets 
+Since no past data of tickets
 
 ---
 
