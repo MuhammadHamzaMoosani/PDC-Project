@@ -11,13 +11,12 @@ import time
 # options.add_argument("--headless")   # Optional: run browser in the background
 from datetime import datetime
 
-now = datetime.now()
-formatted_date = now.strftime("%B %d %Y")  # %B = full month name
-array=formatted_date.split(" ")
-if "0"==array[1][0]:
-    array[1]=array[1][1]+","
-    print("leading zero")
-formatted_date = ' '.join(array)
+from datetime import datetime
+
+now = datetime(2025, 5, 13)  # remove for current date
+day = str(now.day)  # removes leading zero
+formatted_date = now.strftime("%B") + f" {day}, {now.year}"
+
 print(formatted_date)
 chrome_options = Options()
 chrome_options.add_experimental_option("prefs", {
@@ -26,8 +25,8 @@ chrome_options.add_experimental_option("prefs", {
 })
 driver = webdriver.Chrome(options=chrome_options)  # works if chromedriver is in PATH
 driver.get("https://www.kayak.com/")
-time.sleep(15)
 try:
+    original_window = driver.current_window_handle
     dropdown = WebDriverWait(driver, 10).until(
     EC.element_to_be_clickable((By.CLASS_NAME, "Uqct-title")))   
     dropdown.click()
@@ -59,8 +58,6 @@ try:
         li_elements[0].click()
     else:
         print("No list items found.")
-    time.sleep(3)
-    time.sleep(3)
     departure_input = WebDriverWait(driver, 10).until(
     EC.element_to_be_clickable((By.XPATH, '//input[@aria-label="Flight destination input"]')))
     departure_input.send_keys("Dubai")
@@ -86,15 +83,29 @@ try:
     EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Search"]')))
     button.click()
 
-    original_window = driver.current_window_handle
 
-    driver.switch_to.window(original_window)
-    driver.close()
+    print("🪟 Waiting for new tab or popup to open...")
+    initial_windows = driver.window_handles
 
-    # Now switch to the remaining open tab
-    remaining_window = driver.window_handles[0]
-    driver.switch_to.window(remaining_window)
-    print("here")
+    try:
+        wait.until(lambda d: len(d.window_handles) > len(initial_windows))
+        print("✅ New window opened.")
+    except:
+        print("⚠️ No new window opened — continuing in same tab.")
+
+    # Close original if new one opened
+    if len(driver.window_handles) > len(initial_windows):
+        print("🔁 Switching to new window...")
+        for handle in driver.window_handles:
+            if handle != original_window:
+                driver.switch_to.window(handle)
+                break
+        driver.close()  # Close original
+        driver.switch_to.window(driver.window_handles[0])  # Switch to new
+    else:
+        print("🔁 Staying in the original window.")
+        driver.switch_to.window(original_window)
+
     
     #result page 
      #div
@@ -102,7 +113,6 @@ try:
     all_results=WebDriverWait(driver,120).until(
         EC.presence_of_all_elements_located((By.XPATH,'//div[@class="Fxw9-result-item-container"]'))
     )
-    time.sleep(2)
     for result in all_results:
         try:
             print("Flight")
