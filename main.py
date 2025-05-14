@@ -144,7 +144,7 @@ def scrape_kayak_flights(origin, destination):
     import os
 
     # Define the folder and filename
-    folder_name = "kayak_flights_data_testing"
+    folder_name = "kayak_flights_data"
     base_name = "kayak_flights"
     ext = ".json"
     counter = 1

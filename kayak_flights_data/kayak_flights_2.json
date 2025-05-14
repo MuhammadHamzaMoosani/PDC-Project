@@ -1,9 +1,9 @@
 [
     {
-        "Orgin": "Islamabad",
-        "Destination": "Karachi",
+        "Origin": "Karachi",
+        "Destination": "Islamabad",
         "departure_time": "11:00 pm",
-        "price": "$78",
+        "price": "$51",
         "date": "May 14, 2025"
     }
 ]
