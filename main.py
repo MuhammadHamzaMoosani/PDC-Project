@@ -124,7 +124,7 @@ def scrape_kayak_flights(origin, destination):
                 price = result.find_element(By.XPATH, './/div[@class="e2GB-price-text"]')
 
                 flight_data.append({
-                    "Orgin":origin,
+                    "Origin":origin,
                     "Destination":destination,
                     "departure_time": timeFlight.text,
                     "price": price.text,
@@ -144,7 +144,7 @@ def scrape_kayak_flights(origin, destination):
     import os
 
     # Define the folder and filename
-    folder_name = "kayak_flights_data"
+    folder_name = "kayak_flights_data_testing"
     base_name = "kayak_flights"
     ext = ".json"
     counter = 1
@@ -165,3 +165,5 @@ def scrape_kayak_flights(origin, destination):
         json.dump(flight_data, f, indent=4)
 
     print(f"✅ Flight data saved to {filename}")
+
+    return flight_data
