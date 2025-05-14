@@ -108,7 +108,7 @@ def extract_metrics(results, label, execution_time, file_name):
     coverage = unique / len(pairs)
 
     # Example priority set (you can modify this as needed)
-    priority_pairs = [("Karachi", "Islamabad"), ("Karachi", "Lahore")]
+    priority_pairs = [("Berlin", "Paris"), ("Berlin", "London")]
     priority_set = set(priority_pairs)
     crawled_set = set(all_crawled)
     quality = len(priority_set & crawled_set) / len(priority_set) if priority_set else 0
@@ -144,12 +144,13 @@ def extract_metrics(results, label, execution_time, file_name):
 
 
 if __name__ == "__main__":
-    origins = ["Karachi", "Lahore", "Islamabad"]
+    # origins = ["Karachi", "Lahore", "Islamabad"]
     # origins = ["Karachi", "Islamabad"]
     # origins = ["Hyderabad", "Multan", "Rawalpindi"]
+    origins = ["London", "Paris", "Berlin"]
     pairs = [(o, d) for o in origins for d in origins if o != d]
 
-    file_name = "output_real.txt"
+    file_name = "output_EU.txt"
     all_metrics = []
 
     # === Sequential ===
@@ -243,7 +244,7 @@ if __name__ == "__main__":
     plt.xticks(rotation=45)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(plot_dir, "performance_metrics.png"))  # Save all subplots in one image
+    plt.savefig(os.path.join(plot_dir, "performance_metrics_EU.png"))  # Save all subplots in one image
     plt.show()
 
 
