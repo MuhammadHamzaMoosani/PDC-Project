@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -21,12 +22,13 @@ def scrape_kayak_flights(origin, destination):
         "profile.default_content_setting_values.popups": 0,
         "profile.default_content_setting_values.notifications": 2
     })
+    # chrome_options.add_argument("--headless=new") 
 
     driver = webdriver.Chrome(options=chrome_options)
     driver.get("https://www.kayak.com/")
 
     flight_data = []
-
+    
     try:
         original_window = driver.current_window_handle
 
@@ -71,6 +73,7 @@ def scrape_kayak_flights(origin, destination):
         depart_date = WebDriverWait(driver, 15).until(
             EC.element_to_be_clickable((By.XPATH, f'//div[@role="button" and contains(@aria-label, "{formatted_date}")]')))
         depart_date.click()
+        
 
         # Click search
         button = WebDriverWait(driver, 10).until(
@@ -86,17 +89,29 @@ def scrape_kayak_flights(origin, destination):
             print("✅ New window opened.")
         except:
             print("⚠️ No new window opened — continuing in same tab.")
+        time.sleep(2)  # Adjust this time (in seconds) to wait a little longer
 
-        if len(driver.window_handles) > len(initial_windows):
-            for handle in driver.window_handles:
-                if handle != original_window:
+        all_windows = driver.window_handles
+        matched_window = None
+
+        for handle in all_windows:
+            driver.switch_to.window(handle)
+            current_url = driver.current_url
+            if "kayak.com/flights" in current_url:
+                matched_window = handle
+                print(f"🔗 Found a Kayak tab: {current_url}")
+                break
+
+        if matched_window:
+            # Close other tabs
+            for handle in all_windows:
+                if handle != matched_window:
                     driver.switch_to.window(handle)
-                    break
-            driver.close()  # Close original
-            driver.switch_to.window(driver.window_handles[0])
+                    driver.close()
+            driver.switch_to.window(matched_window)
         else:
+            print("⚠️ No Kayak tab found — falling back to original.")
             driver.switch_to.window(original_window)
-
         # Extract results
         all_results = WebDriverWait(driver, 120).until(
             EC.presence_of_all_elements_located((By.XPATH, '//div[@class="Fxw9-result-item-container"]'))
@@ -125,9 +140,28 @@ def scrape_kayak_flights(origin, destination):
     finally:
         driver.quit()
 
-    # Save to JSON
-    with open("kayak_flights.json", "w", encoding='utf-8') as f:
+    import json
+    import os
+
+    # Define the folder and filename
+    folder_name = "kayak_flights_data"
+    base_name = "kayak_flights"
+    ext = ".json"
+    counter = 1
+
+    # Create the folder if it doesn't exist
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+        print(f"✅ Folder '{folder_name}' created.")
+
+    # Find an available filename
+    while os.path.exists(f"{folder_name}/{base_name}_{counter}{ext}"):
+        counter += 1
+
+    filename = f"{folder_name}/{base_name}_{counter}{ext}"
+
+    # Save the flight data to the JSON file
+    with open(filename, "w", encoding='utf-8') as f:
         json.dump(flight_data, f, indent=4)
 
-    print("✅ Flight data saved to kayak_flights.json")
-
+    print(f"✅ Flight data saved to {filename}")
